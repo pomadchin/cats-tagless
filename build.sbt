@@ -16,8 +16,7 @@ val homePage = "https://typelevel.org/cats-tagless"
 ThisBuild / organizationName := "cats-tagless maintainers"
 ThisBuild / tlBaseVersion := "0.14"
 
-// ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, Scala3)
-ThisBuild / crossScalaVersions := Seq(Scala3)
+ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, Scala3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(
@@ -54,21 +53,15 @@ val scalaCheckVersion = "1.17.0"
 val macroSettings = List(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) => List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided)
-    case Some((3, _))  => List("scala-compiler").map("org.scala-lang" % _ % scalaVersion.value % Provided)
     case _             => Nil
   }),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.13" => List("-Ymacro-annotations")
     case _      => Nil
   }),
-  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((3, _))        => Seq("-Ykind-projector:underscores")
-    case Some((2, 12 | 13))  => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
-    case _                   => Nil
-  }),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) | Some((3, _)) => Nil
-    case _                             => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
+    case _                            => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
   })
 )
 
@@ -156,7 +149,7 @@ lazy val docs = project
   )
 
 lazy val docsMappingsAPIDir = settingKey[String]("Name of subdirectory in site target directory for api docs")
-lazy val rootSettings = (scalacOptions += "-Xsource:3") :: commonSettings
+lazy val rootSettings = commonSettings
 lazy val docSettings = commonSettings ::: List(
   docsMappingsAPIDir := "api",
   addMappingsToSiteDir(coreJVM / Compile / packageDoc / mappings, docsMappingsAPIDir),
@@ -194,7 +187,25 @@ lazy val commonSettings = List(
   resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
   startYear := Some(2019),
   apiURL := Some(url("https://typelevel.org/cats-tagless/api/")),
-  autoAPIMappings := true
+  autoAPIMappings := true,
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    // TODO: review and cleanup flags
+    case Some((3, _))        => Seq(
+      "-deprecation",
+      "-unchecked",
+      "-language:implicitConversions",
+      "-language:reflectiveCalls",
+      "-language:higherKinds",
+      "-language:postfixOps",
+      "-language:existentials",
+      "-feature",
+      "-source:future",
+      "-explain",
+      "-Ykind-projector:underscores"
+    )
+    case Some((2, 12 | 13))  => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+    case _                   => Nil
+  })
 )
 
 lazy val commonJsSettings = List(
