@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 cats-tagless maintainers
+ * Copyright 2023 cats-tagless maintainers
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,6 @@
  * limitations under the License.
  */
 
-package cats.tagless
+package cats.tagless.derived
 
-/** The trivial type class which has an instance for any type but does nothing. */
-final class Trivial[A] private extends Serializable
-
-object Trivial {
-  private val any = new Trivial[Any]
-  implicit def instance[A]: Trivial[A] = any.asInstanceOf[Trivial[A]]
-}
+trait DerivedFunctorK

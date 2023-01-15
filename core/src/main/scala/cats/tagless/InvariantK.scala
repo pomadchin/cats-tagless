@@ -16,6 +16,7 @@
 
 package cats.tagless
 
+import cats.tagless.derived.DerivedInvariantK
 import cats.*
 import cats.arrow.FunctionK
 import cats.data.*
@@ -28,7 +29,7 @@ trait InvariantK[Alg[_[_]]] extends Serializable {
   def imapK[F[_], G[_]](af: Alg[F])(fk: F ~> G)(gk: G ~> F): Alg[G]
 }
 
-object InvariantK extends InvariantKInstances01 {
+object InvariantK extends InvariantKInstances01 with DerivedInvariantK {
   implicit def catsTaglessApplyKForEitherK[F[_], A]: ApplyK[({ type W[g[_]] = EitherK[F, g, A] })#W] =
     eitherKInstance.asInstanceOf[ApplyK[({ type W[g[_]] = EitherK[F, g, A] })#W]]
 

@@ -78,7 +78,9 @@ lazy val core = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .settings(rootSettings)
   .settings(
     moduleName := "cats-tagless-core",
-    libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion
+    libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion,
+    // TODO: rm tests from core, moved them here for the test purposes
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % Test
   )
 
 lazy val lawsJVM = laws.jvm

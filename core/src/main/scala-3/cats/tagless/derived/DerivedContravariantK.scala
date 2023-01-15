@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-package cats.tagless
+package cats.tagless.derived
 
-/** The trivial type class which has an instance for any type but does nothing. */
-final class Trivial[A] private extends Serializable
+import cats.tagless.macros.Derive
 
-object Trivial {
-  private val any = new Trivial[Any]
-  implicit def instance[A]: Trivial[A] = any.asInstanceOf[Trivial[A]]
-}
+trait DerivedContravariantK:
+  inline def derived[Alg[_[_]]] = Derive.contravariantK[Alg]
