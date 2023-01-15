@@ -6,6 +6,7 @@ addCommandAlias("fmtCheck", "all scalafmtSbtCheck scalafmtCheckAll")
 
 val Scala212 = "2.12.17"
 val Scala213 = "2.13.10"
+val Scala3 = "3.2.2"
 val Java8 = JavaSpec.temurin("8")
 
 val gitRepo = "git@github.com:typelevel/cats-tagless.git"
@@ -15,7 +16,8 @@ val homePage = "https://typelevel.org/cats-tagless"
 ThisBuild / organizationName := "cats-tagless maintainers"
 ThisBuild / tlBaseVersion := "0.14"
 
-ThisBuild / crossScalaVersions := Seq(Scala212, Scala213)
+// ThisBuild / crossScalaVersions := Seq(Scala212, Scala213, Scala3)
+ThisBuild / crossScalaVersions := Seq(Scala3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(
@@ -50,15 +52,23 @@ val paradiseVersion = "2.1.1"
 val scalaCheckVersion = "1.17.0"
 
 val macroSettings = List(
-  libraryDependencies ++=
-    List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided),
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) => List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided)
+    case Some((3, _))  => List("scala-compiler").map("org.scala-lang" % _ % scalaVersion.value % Provided)
+    case _             => Nil
+  }),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.13" => List("-Ymacro-annotations")
-    case _ => Nil
+    case _      => Nil
   }),
-  libraryDependencies ++= (scalaBinaryVersion.value match {
-    case "2.13" => Nil
-    case _ => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
+  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _))        => Seq("-Ykind-projector:underscores")
+    case Some((2, 12 | 13))  => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+    case _                   => Nil
+  }),
+  libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 13)) | Some((3, _)) => Nil
+    case _                             => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
   })
 )
 

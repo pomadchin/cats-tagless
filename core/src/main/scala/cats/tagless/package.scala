@@ -19,6 +19,7 @@ package cats
 import cats.data.Tuple2K
 
 package object tagless {
+  type AnyK[A] = Any
   type Void[A] = Unit
   type Const[A] = { type λ[T] = A }
   type IdK[A] = { type λ[F[_]] = F[A] }
