@@ -17,6 +17,7 @@
 package cats.tagless.laws
 
 import cats.laws._
+import cats.tagless.FunctionKLift
 import cats.tagless.aop.{Instrument, Instrumentation}
 import cats.~>
 
@@ -24,7 +25,7 @@ trait InstrumentLaws[F[_[_]]] extends FunctorKLaws[F] {
   implicit def F: Instrument[F]
 
   def instrumentPreservingSemantics[A[_]](fa: F[A]): IsEq[F[A]] =
-    F.mapK(F.instrument(fa))(λ[Instrumentation[A, *] ~> A](_.value)) <-> fa
+    F.mapK(F.instrument(fa))(FunctionKLift[Instrumentation[A, *], A](_.value)) <-> fa
 }
 
 object InstrumentLaws {

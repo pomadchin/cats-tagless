@@ -6,6 +6,7 @@ addCommandAlias("fmtCheck", "all scalafmtSbtCheck scalafmtCheckAll")
 
 val Scala212 = "2.12.16"
 val Scala213 = "2.13.8"
+val Scala3 = "3.1.3"
 val Java8 = JavaSpec.temurin("8")
 
 val gitRepo = "git@github.com:typelevel/cats-tagless.git"
@@ -15,7 +16,7 @@ val homePage = "https://typelevel.org/cats-tagless"
 ThisBuild / organizationName := "cats-tagless maintainers"
 ThisBuild / tlBaseVersion := "0.14"
 
-ThisBuild / crossScalaVersions := Seq(Scala212, Scala213)
+ThisBuild / crossScalaVersions := Seq(/*Scala212, Scala213, */Scala3)
 ThisBuild / tlCiReleaseBranches := Seq("master")
 ThisBuild / mergifyStewardConfig := Some(
   MergifyStewardConfig(
@@ -49,6 +50,16 @@ val kindProjectorVersion = "0.13.2"
 val paradiseVersion = "2.1.1"
 val scalaCheckVersion = "1.16.0"
 
+ThisBuild / scalacOptions += "-language:implicitConversions"
+ThisBuild / scalacOptions ++= {
+  CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((3, _)) => Seq("-Ykind-projector:underscores")
+    case Some((2, 12 | 13)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+  }
+}
+
+ThisBuild / scalaVersion := Scala3
+
 val macroSettings = List(
   libraryDependencies ++=
     List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided),
@@ -59,7 +70,7 @@ val macroSettings = List(
   libraryDependencies ++= (scalaBinaryVersion.value match {
     case "2.13" => Nil
     case _ => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
-  })
+  }),
 )
 
 lazy val root = tlCrossRootProject.aggregate(core, laws, tests, macros)
@@ -100,6 +111,20 @@ lazy val macrosJVM = macros.jvm
 lazy val macrosJS = macros.js
 lazy val macrosNative = macros.native
 lazy val macros = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .dependsOn(core)
+  .aggregate(core)
+  .enablePlugins(AutomateHeaderPlugin)
+  .jsSettings(commonJsSettings)
+  .nativeSettings(commonNativeSettings)
+  .settings(rootSettings, macroSettings)
+  .settings(
+    moduleName := "cats-tagless-macros",
+    scalacOptions := scalacOptions.value.filterNot(_.startsWith("-Wunused")).filterNot(_.startsWith("-Ywarn-unused")),
+    libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalaCheckVersion % Test
+  )
+
+lazy val deriving = crossProject(JVMPlatform)
   .crossType(CrossType.Pure)
   .dependsOn(core)
   .aggregate(core)
