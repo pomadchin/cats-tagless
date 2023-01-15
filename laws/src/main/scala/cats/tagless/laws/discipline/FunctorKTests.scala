@@ -38,8 +38,8 @@ trait FunctorKTests[F[_[_]]] extends InvariantKTests[F] {
     new DefaultRuleSet(
       name = "functorK",
       parent = Some(invariantK[A, B, C]),
-      "covariant identity" -> forAll(laws.covariantIdentity[A] _),
-      "covariant composition" -> forAll(laws.covariantComposition[A, B, C] _)
+      "covariant identity" -> forAll(laws.covariantIdentity[A]),
+      "covariant composition" -> forAll(laws.covariantComposition[A, B, C])
     )
 }
 

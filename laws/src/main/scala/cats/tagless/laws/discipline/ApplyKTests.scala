@@ -46,7 +46,7 @@ trait ApplyKTests[F[_[_]]] extends FunctorKTests[F] with SemigroupalKTests[F] {
       val name = "applyK"
       val parents = List(functorK[A, B, C, T], semigroupalK[A, B, C])
       val bases = List.empty
-      val props = List("applyK associativity" -> forAll(laws.applyKAssociativity[A, B, C] _))
+      val props = List("applyK associativity" -> forAll(laws.applyKAssociativity[A, B, C]))
     }
 }
 

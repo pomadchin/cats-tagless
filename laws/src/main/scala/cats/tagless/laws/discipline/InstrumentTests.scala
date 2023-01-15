@@ -38,7 +38,7 @@ trait InstrumentTests[F[_[_]]] extends FunctorKTests[F] {
     val name = "instrument"
     val parents = List(functorK[A, B, C, T])
     val bases = Nil
-    val props = List("instrument preserving semantics" -> forAll(laws.instrumentPreservingSemantics[A] _))
+    val props = List("instrument preserving semantics" -> forAll(laws.instrumentPreservingSemantics[A]))
   }
 }
 

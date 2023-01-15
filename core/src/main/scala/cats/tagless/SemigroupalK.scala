@@ -64,10 +64,12 @@ object SemigroupalK extends SemigroupalKInstances with DerivedSemigroupalK {
   implicit def catsTaglessSemigroupalKForOneAnd[A: Semigroup]: SemigroupalK[({ type W[s[_]] = OneAnd[s, A] })#W] =
     InvariantK.catsTaglessApplyKForOneAnd[A]
 
-  implicit def catsTaglessSemigroupalKForTuple2K1[G[_]: SemigroupK, A]: SemigroupalK[({ type W[f[_]] = Tuple2K[f, G, A] })#W] =
+  implicit def catsTaglessSemigroupalKForTuple2K1[G[_]: SemigroupK, A]
+      : SemigroupalK[({ type W[f[_]] = Tuple2K[f, G, A] })#W] =
     InvariantK.catsTaglessApplyKForTuple2K1[G, A]
 
-  implicit def catsTaglessSemigroupalKForTuple2K2[F[_]: SemigroupK, A]: SemigroupalK[({ type W[g[_]] = Tuple2K[F, g, A] })#W] =
+  implicit def catsTaglessSemigroupalKForTuple2K2[F[_]: SemigroupK, A]
+      : SemigroupalK[({ type W[g[_]] = Tuple2K[F, g, A] })#W] =
     InvariantK.catsTaglessApplyKForTuple2K2[F, A]
 
   // =======================

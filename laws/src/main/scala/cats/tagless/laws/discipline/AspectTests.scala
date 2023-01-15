@@ -40,8 +40,8 @@ trait AspectTests[F[_[_]], Dom[_], Cod[_]] extends InstrumentTests[F] {
     val parents = List(instrument[A, B, C, T])
     val bases = Nil
     val props = List(
-      "weave preserving semantics" -> forAll(laws.weavePreservingSemantics[A] _),
-      "weave instrument consistency" -> forAll(laws.weaveInstrumentConsistency[A] _)
+      "weave preserving semantics" -> forAll(laws.weavePreservingSemantics[A]),
+      "weave instrument consistency" -> forAll(laws.weaveInstrumentConsistency[A])
     )
   }
 }

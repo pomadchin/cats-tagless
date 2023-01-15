@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package cats.tagless
+package cats.tagless.simple
 
+import cats.tagless.*
 import cats.Id
 import cats.data.Cokleisli
 
