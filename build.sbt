@@ -200,7 +200,8 @@ lazy val commonSettings = List(
     case _ => Nil
   }),
   // sbt-typelevel sets -source:3.0-migration, we'd like to replace it with -source:future
-  scalacOptions := scalacOptions.value.filterNot(_ == "-source:3.0-migration")
+  scalacOptions := scalacOptions.value.filterNot(_ == "-source:3.0-migration"),
+  tlVersionIntroduced := Map("3" -> "0.15.0")
 )
 
 lazy val commonJsSettings = List(
