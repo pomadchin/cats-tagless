@@ -28,23 +28,22 @@ import org.scalacheck.Arbitrary
 
 import scala.util.Try
 
-class autoApplyKTests extends CatsTaglessTestSuite {
+class autoApplyKTests extends CatsTaglessTestSuite:
   // Type inference limitation.
-  implicit val eqTuple3K: Eq[AutoApplyKTestAlg[Tuple3K[Try, Option, List]#λ]] = AutoApplyKTestAlg.eqForAutoApplyKTestAlg[Tuple3K[Try, Option, List]#λ]
+  implicit val eqTuple3K: Eq[AutoApplyKTestAlg[Tuple3K[Try, Option, List]#λ]] =
+    AutoApplyKTestAlg.eqForAutoApplyKTestAlg[Tuple3K[Try, Option, List]#λ]
   checkAll("ApplyK[AutoApplyKTestAlg]", ApplyKTests[AutoApplyKTestAlg].applyK[Try, Option, List, Int])
   checkAll("ApplyK is Serializable", SerializableTests.serializable(ApplyK[AutoApplyKTestAlg]))
-}
 
-object autoApplyKTests {
+object autoApplyKTests:
 
-  trait AutoApplyKTestAlg[F[_]] derives ApplyK {
+  trait AutoApplyKTestAlg[F[_]] derives ApplyK:
     def parseInt(str: String): F[Int]
     // TODO: Macro should handle it
     // def parseDouble(str: String): EitherT[F, String, Double]
     def divide(dividend: Float, divisor: Float): F[Float]
-  }
 
-  object AutoApplyKTestAlg {
+  object AutoApplyKTestAlg:
     import TestInstances.*
 
     implicit def eqForAutoApplyKTestAlg[F[_]](implicit
@@ -60,20 +59,16 @@ object autoApplyKTests {
         arbFf: Arbitrary[F[Float]],
         arbEfd: Arbitrary[EitherT[F, String, Double]]
     ): Arbitrary[AutoApplyKTestAlg[F]] = Arbitrary {
-      for {
+      for
         pInt <- Arbitrary.arbitrary[String => F[Int]]
         pDouble <- Arbitrary.arbitrary[String => EitherT[F, String, Double]]
         div <- Arbitrary.arbitrary[(Float, Float) => F[Float]]
-      } yield new AutoApplyKTestAlg[F] {
+      yield new AutoApplyKTestAlg[F]:
         def parseInt(str: String) = pInt(str)
         def parseDouble(str: String) = pDouble(str)
         def divide(dividend: Float, divisor: Float) = div(dividend, divisor)
-      }
     }
-  }
 
-  trait AlgWithVarArgsParameter[F[_]] derives ApplyK {
+  trait AlgWithVarArgsParameter[F[_]] derives ApplyK:
     def sum(xs: Int*): Int
     def fSum(xs: Int*): F[Int]
-  }
-}

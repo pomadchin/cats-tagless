@@ -27,44 +27,40 @@ import org.scalacheck.{Arbitrary, Cogen}
 
 import scala.util.Try
 
-class autoContravariantKTests extends CatsTaglessTestSuite {
+class autoContravariantKTests extends CatsTaglessTestSuite:
   import autoContravariantKTests.*
 
   // checkAll("ContravariantK[TestAlgebra]", ContravariantKTests[TestAlgebra].contravariantK[Try, Option, List, Int])
   checkAll("Serializable ContravariantK[TestAlgebra]", SerializableTests.serializable(ContravariantK[TestAlgebra]))
-}
 
-object autoContravariantKTests {
+object autoContravariantKTests:
   import TestInstances.*
 
-  trait TestAlgebra[F[_]] derives ContravariantK {
+  trait TestAlgebra[F[_]] derives ContravariantK:
     // TODO: Macro should handle it
     // def sum(xs: F[Int]): Int
     // ef sumAll(xss: F[Int]*): Int
     def foldSpecialized(init: String)(f: (Int, String) => Int): Cokleisli[F, String, Int]
-  }
 
-  object TestAlgebra {
+  object TestAlgebra:
     implicit def eqv[F[_]](implicit arbFi: Arbitrary[F[Int]], arbFs: Arbitrary[F[String]]): Eq[TestAlgebra[F]] =
-      Eq.by(algebra => (/*algebra.sum, algebra.sumAll,*/ algebra.foldSpecialized))
-  }
+      Eq.by(algebra => ( /*algebra.sum, algebra.sumAll,*/ algebra.foldSpecialized))
 
   implicit def arbitrary[F[_]](implicit
       arbFs: Arbitrary[F[String]],
       coFi: Cogen[F[Int]],
       coFs: Cogen[F[String]]
-  ): Arbitrary[TestAlgebra[F]] = Arbitrary(for {
+  ): Arbitrary[TestAlgebra[F]] = Arbitrary(for
     s <- Arbitrary.arbitrary[F[Int] => Int]
     sa <- Arbitrary.arbitrary[Seq[F[Int]] => Int]
     fs <- Arbitrary.arbitrary[(String, (Int, String) => Int) => Cokleisli[F, String, Int]]
-  } yield new TestAlgebra[F] {
+  yield new TestAlgebra[F]:
     def sum(xs: F[Int]) = s(xs)
     def sumAll(xss: F[Int]*) = sa(xss)
     def foldSpecialized(init: String)(f: (Int, String) => Int) = fs(init, f)
-  })
+  )
 
   // TODO: Macro should handle it
   // trait TestAlgebraWithExtraTypeParam[F[_], A] extends TestAlgebra[F] derives ContravariantK {
   //   def fold[B](init: B)(f: (B, A) => B): Cokleisli[F, A, B]
   // }
-}

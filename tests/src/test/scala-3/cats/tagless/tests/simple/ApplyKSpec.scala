@@ -35,12 +35,13 @@ class ApplyKSpec extends munit.FunSuite with Fixtures:
   }
 
   test("ApplyK should be a valid instance for a simple algebra") {
-    val functorK         = Derive.functorK[SimpleService]
-    val applyK           = Derive.applyK[SimpleService]
+    val functorK = Derive.functorK[SimpleService]
+    val applyK = Derive.applyK[SimpleService]
     val optionalInstance = functorK.mapK(instance)(FunctionK.lift([X] => (id: Id[X]) => Option(id)))
 
-    val fk: Tuple2K[Id, Option, *] ~> Try = FunctionK.lift([X] => (tup: Tuple2K[Id, Option, X]) => Try(tup.second.map(_ => tup.first).get))
-    val tryInstance                       = applyK.map2K[Id, Option, Try](instance, optionalInstance)(fk)
+    val fk: Tuple2K[Id, Option, *] ~> Try =
+      FunctionK.lift([X] => (tup: Tuple2K[Id, Option, X]) => Try(tup.second.map(_ => tup.first).get))
+    val tryInstance = applyK.map2K[Id, Option, Try](instance, optionalInstance)(fk)
 
     assertEquals(tryInstance.id(), Try(instance.id()))
     assertEquals(tryInstance.list(0), Try(instance.list(0)))
@@ -49,14 +50,18 @@ class ApplyKSpec extends munit.FunSuite with Fixtures:
   }
 
   test("DeriveMacro should not derive instance for a not simple algebra".ignore) {
-    assertEquals(typeCheckErrors("Derive.applyK[NotSimpleService]").map(_.message), List("Derive works with simple algebras only."))
+    assertEquals(
+      typeCheckErrors("Derive.applyK[NotSimpleService]").map(_.message),
+      List("Derive works with simple algebras only.")
+    )
   }
 
   test("ApplyK derives syntax") {
     val optionalInstance = instance.mapK(FunctionK.lift([X] => (id: Id[X]) => Option(id)))
 
-    val fk: Tuple2K[Id, Option, *] ~> Try = FunctionK.lift([X] => (tup: Tuple2K[Id, Option, X]) => Try(tup.second.map(_ => tup.first).get))
-    val tryInstance                       = instance.map2K(optionalInstance)(fk)
+    val fk: Tuple2K[Id, Option, *] ~> Try =
+      FunctionK.lift([X] => (tup: Tuple2K[Id, Option, X]) => Try(tup.second.map(_ => tup.first).get))
+    val tryInstance = instance.map2K(optionalInstance)(fk)
 
     assertEquals(tryInstance.id(), Try(instance.id()))
     assertEquals(tryInstance.list(0), Try(instance.list(0)))

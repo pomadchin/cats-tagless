@@ -25,46 +25,50 @@ import scala.annotation.experimental
 
 object Utils:
   val classNameCokleisli = classOf[Cokleisli[?, ?, ?]].getName
-  val classNameTuple2K   = classOf[Tuple2K[?, ?, ?]].getName
-  val classNameApplyK    = classOf[ApplyK[?]].getName
-  val λlit               = "λ"
+  val classNameTuple2K = classOf[Tuple2K[?, ?, ?]].getName
+  val classNameApplyK = classOf[ApplyK[?]].getName
+  val λlit = "λ"
 
-  def methodApply[Alg[_[_]]: Type, F[_]: Type](e: Expr[Alg[F]])(using Quotes): (quotes.reflect.Symbol, List[List[quotes.reflect.Tree]]) => quotes.reflect.Term =
+  def methodApply[Alg[_[_]]: Type, F[_]: Type](e: Expr[Alg[F]])(using
+      Quotes
+  ): (quotes.reflect.Symbol, List[List[quotes.reflect.Tree]]) => quotes.reflect.Term =
     (method, argss) =>
       import quotes.reflect.*
       // method with no parentheses
       if argss.isEmpty then Select(e.asTerm, method)
-      else {
+      else
         // collect all terms
         // empty args are allowable, carefully don't skip empty lists
-        val terms = 
-          argss
-            .map { list => if list.nonEmpty then (list.collect { case t: Term => t }, true) else (Nil, false) }
-            .collect { case (list, skippable) if skippable && list.nonEmpty || !skippable => list }
+        val terms =
+          argss.map { list =>
+            if list.nonEmpty then (list.collect { case t: Term => t }, true) else (Nil, false)
+          }.collect { case (list, skippable) if skippable && list.nonEmpty || !skippable => list }
 
         // collect all targs
         val targs = argss.map(_.collect { case t: TypeTree => t }).filter(_.nonEmpty)
 
-        // construct type args first 
+        // construct type args first
         val methodT = targs.foldLeft(Select(e.asTerm, method): Term)((acc, args) => TypeApply(acc, args))
         // construct arguments next
         val methodC = terms.foldLeft(methodT)((acc, args) => Apply(acc, args))
 
         methodC
-      }
 
-  def memberSymbolsAsSeen[Alg[_[_]]: Type, F[_]: Type](using Quotes): quotes.reflect.Symbol => List[quotes.reflect.Symbol] =
+  def memberSymbolsAsSeen[Alg[_[_]]: Type, F[_]: Type](using
+      Quotes
+  ): quotes.reflect.Symbol => List[quotes.reflect.Symbol] =
     import quotes.reflect.*
     clz =>
       val algFApplied = TypeRepr.of[Alg[F]]
-      val methods     = definedMethodsInTypeSym(using quotes)(clz)
+      val methods = definedMethodsInTypeSym(using quotes)(clz)
       methods.map { method =>
         val asSeenApplied = algFApplied.memberType(method)
         Symbol.newMethod(
           clz,
           method.name,
           asSeenApplied,
-          flags = Flags.Method, // method.flags is Flags.Deferred | Flags.Method, we'd like to unset the Deferred flag here // method.flags. &~ Flags.Deferred?
+          flags =
+            Flags.Method, // method.flags is Flags.Deferred | Flags.Method, we'd like to unset the Deferred flag here // method.flags. &~ Flags.Deferred?
           privateWithin = method.privateWithin.fold(Symbol.noSymbol)(_.typeSymbol)
         )
       }
@@ -73,7 +77,7 @@ object Utils:
   def definedMethodsInTypeSym(using Quotes): quotes.reflect.Symbol => List[quotes.reflect.Symbol] =
     import quotes.reflect.*
     (cls: quotes.reflect.Symbol) =>
-      for {
+      for
         member <- cls.methodMembers
         // is abstract method, not implemented
         if member.flags.is(Flags.Deferred)
@@ -86,7 +90,7 @@ object Utils:
 
         if !member.isClassConstructor
         if !member.flags.is(Flags.Synthetic)
-      } yield member
+      yield member
 
   // https://github.com/lampepfl/dotty/discussions/16305
   // IdK[Int] is encoded as
@@ -107,18 +111,19 @@ object Utils:
   def refinedTypes(using Quotes): quotes.reflect.TypeRepr => List[(String, quotes.reflect.TypeRepr)] =
     import quotes.reflect.*
     (tr: TypeRepr) =>
-      tr.asMatchable match {
+      tr.asMatchable match
         case Refinement(parent, name, info) => (name, info) :: refinedTypes(parent)
-        case repr                           => Nil
-      }
+        case repr => Nil
 
-  def refinedTypeFind(searchName: String)(using Quotes): quotes.reflect.TypeRepr => Option[(String, quotes.reflect.TypeRepr)] =
+  def refinedTypeFind(searchName: String)(using
+      Quotes
+  ): quotes.reflect.TypeRepr => Option[(String, quotes.reflect.TypeRepr)] =
     import quotes.reflect.*
     (tr: TypeRepr) =>
       tr.asMatchable match
         case Refinement(parent, name, info) if name == searchName => Some(name, info)
-        case Refinement(parent, _, _)                             => refinedTypeFind(searchName)(parent)
-        case repr                                                 => None
+        case Refinement(parent, _, _) => refinedTypeFind(searchName)(parent)
+        case repr => None
 
   def refinedTypeFindλ(using Quotes): quotes.reflect.TypeRepr => Option[(String, quotes.reflect.TypeRepr)] =
     refinedTypeFind(λlit)
@@ -128,19 +133,22 @@ object Utils:
     (typeRepr: TypeRepr) =>
       Implicits.search(typeRepr) match
         case res: ImplicitSearchSuccess => res.tree
-        case _                          => report.errorAndAbort(s"No ${typeRepr.show} implicit found.")
+        case _ => report.errorAndAbort(s"No ${typeRepr.show} implicit found.")
 
-  def typeReprFor[Alg[_[_[_]]]: Type, U[_]: Type](using Quotes): List[quotes.reflect.TypeRepr] => quotes.reflect.TypeRepr = {
+  def typeReprFor[Alg[_[_[_]]]: Type, U[_]: Type](using
+      Quotes
+  ): List[quotes.reflect.TypeRepr] => quotes.reflect.TypeRepr =
     import quotes.reflect.*
     (inner: List[TypeRepr]) =>
       val typeRepr = TypeRepr.of[U]
       typeRepr.appliedTo(inner) match
         case repr: Refinement => TypeRepr.of[Alg].appliedTo(repr.info)
-        case repr             => report.errorAndAbort(s"${typeRepr} has no proper Refinement type: ${repr}")
-  }
+        case repr => report.errorAndAbort(s"$typeRepr has no proper Refinement type: $repr")
 
   @experimental
-  def newInstanceCall(using Quotes): (quotes.reflect.Symbol, List[quotes.reflect.TypeRepr], List[quotes.reflect.Term]) => quotes.reflect.Apply =
+  def newInstanceCall(using
+      Quotes
+  ): (quotes.reflect.Symbol, List[quotes.reflect.TypeRepr], List[quotes.reflect.Term]) => quotes.reflect.Apply =
     import quotes.reflect.*
     (cls, typeArgs, valArgs) =>
       New(Inferred(cls.typeRef))

@@ -36,33 +36,36 @@ class InvariantKSpec extends munit.FunSuite with Fixtures:
 
   test("InvariantK should be a valid instance for a simple algebra") {
     val invariantK = Derive.invariantK[SimpleService]
-    val functorK   = Derive.functorK[SimpleService]
+    val functorK = Derive.functorK[SimpleService]
 
-    val fk: Id ~> Option  = FunctionK.lift([X] => (id: Id[X]) => Option(id))
-    val gk: Option ~> Id  = FunctionK.lift([X] => (id: Option[X]) => id.get)
+    val fk: Id ~> Option = FunctionK.lift([X] => (id: Id[X]) => Option(id))
+    val gk: Option ~> Id = FunctionK.lift([X] => (id: Option[X]) => id.get)
     val invariantInstance = invariantK.imapK(instance)(fk)(gk)
-    val optionalInstance  = functorK.mapK(instance)(fk)
+    val optionalInstance = functorK.mapK(instance)(fk)
 
-    assertEquals(invariantInstance.id(),  optionalInstance.id())
-    assertEquals(invariantInstance.list(0),  optionalInstance.list(0))
-    assertEquals(invariantInstance.lists(0, 1),  optionalInstance.lists(0, 1))
-    assertEquals(invariantInstance.paranthesless,  optionalInstance.paranthesless)
-    assertEquals(invariantInstance.tuple,  optionalInstance.tuple)
+    assertEquals(invariantInstance.id(), optionalInstance.id())
+    assertEquals(invariantInstance.list(0), optionalInstance.list(0))
+    assertEquals(invariantInstance.lists(0, 1), optionalInstance.lists(0, 1))
+    assertEquals(invariantInstance.paranthesless, optionalInstance.paranthesless)
+    assertEquals(invariantInstance.tuple, optionalInstance.tuple)
   }
 
   test("DeriveMacro should not derive instance for a not simple algebra") {
-    assertEquals(typeCheckErrors("Derive.invariantK[NotSimpleService]").map(_.message),  List("Derive works with simple algebras only."))
+    assertEquals(
+      typeCheckErrors("Derive.invariantK[NotSimpleService]").map(_.message),
+      List("Derive works with simple algebras only.")
+    )
   }
 
   test("InvariantK derives syntax") {
-    val fk: Id ~> Option  = FunctionK.lift([X] => (id: Id[X]) => Option(id))
-    val gk: Option ~> Id  = FunctionK.lift([X] => (id: Option[X]) => id.get)
+    val fk: Id ~> Option = FunctionK.lift([X] => (id: Id[X]) => Option(id))
+    val gk: Option ~> Id = FunctionK.lift([X] => (id: Option[X]) => id.get)
     val invariantInstance = instance.imapK(fk)(gk)
-    val optionalInstance  = instance.mapK(fk)
+    val optionalInstance = instance.mapK(fk)
 
-    assertEquals(invariantInstance.id(),  optionalInstance.id())
-    assertEquals(invariantInstance.list(0),  optionalInstance.list(0))
-    assertEquals(invariantInstance.lists(0, 1),  optionalInstance.lists(0, 1))
-    assertEquals(invariantInstance.paranthesless,  optionalInstance.paranthesless)
-    assertEquals(invariantInstance.tuple,  optionalInstance.tuple)
+    assertEquals(invariantInstance.id(), optionalInstance.id())
+    assertEquals(invariantInstance.list(0), optionalInstance.list(0))
+    assertEquals(invariantInstance.lists(0, 1), optionalInstance.lists(0, 1))
+    assertEquals(invariantInstance.paranthesless, optionalInstance.paranthesless)
+    assertEquals(invariantInstance.tuple, optionalInstance.tuple)
   }

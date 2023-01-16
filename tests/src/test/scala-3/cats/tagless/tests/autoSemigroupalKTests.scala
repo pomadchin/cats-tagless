@@ -24,7 +24,7 @@ import cats.tagless.laws.discipline.SemigroupalKTests
 
 import scala.util.Try
 
-class autoSemigroupalKTests extends CatsTaglessTestSuite {
+class autoSemigroupalKTests extends CatsTaglessTestSuite:
   type T3K[A] = Tuple3K[Try, Option, List]#λ[A]
   // Type inference issues on Scala 2.12
   implicit val eqForSafeAlg: Eq[SafeAlg[T3K]] = SafeAlg.eqForSafeAlg[T3K]
@@ -43,20 +43,15 @@ class autoSemigroupalKTests extends CatsTaglessTestSuite {
     assertEquals(prodInterpreter.parseInt("sd").first.isSuccess, false)
     assertEquals(prodInterpreter.divide(3f, 3f).second.value, 1f)
   }
-}
 
-object autoSemigroupalKTests {
+object autoSemigroupalKTests:
 
-  trait algWithGenericType[F[_]] derives SemigroupalK {
+  trait algWithGenericType[F[_]] derives SemigroupalK:
     def a[T](a: T): F[Unit]
-  }
 
-  trait algWithCurryMethod[F[_]] derives SemigroupalK {
+  trait algWithCurryMethod[F[_]] derives SemigroupalK:
     def a(b: String)(d: Int): F[Unit]
-  }
 
-  trait AlgWithVarArgsParameter[F[_]] derives SemigroupalK {
+  trait AlgWithVarArgsParameter[F[_]] derives SemigroupalK:
     def sum(xs: Int*): Int
     def effectfulSum(xs: Int*): F[Int]
-  }
-}

@@ -67,10 +67,18 @@ object SemigroupalKTests {
             fs: (F[ProdA_BC[A, B, C]#λ], F[ProdAB_C[A, B, C]#λ])
         )(implicit EqFGH: Eq[F[Tuple3K[A, B, C]#λ]]): Prop = {
 
-          val fkA_BC_T3 = FunctionKLift[ProdA_BC[A, B, C]#λ, Tuple3K[A, B, C]#λ] { case Tuple2K(a, Tuple2K(b, c)) => (a, b, c) }
-          val fkAB_C_T3 = FunctionKLift[ProdAB_C[A, B, C]#λ, Tuple3K[A, B, C]#λ] { case Tuple2K(Tuple2K(a, b), c) => (a, b, c) }
-          val fkT3_AB_C = FunctionKLift[Tuple3K[A, B, C]#λ, ProdAB_C[A, B, C]#λ] { case (a, b, c) => Tuple2K(Tuple2K(a, b), c) }
-          val fkT3_A_BC = FunctionKLift[Tuple3K[A, B, C]#λ, ProdA_BC[A, B, C]#λ] { case (a, b, c) => Tuple2K(a, Tuple2K(b, c)) }
+          val fkA_BC_T3 = FunctionKLift[ProdA_BC[A, B, C]#λ, Tuple3K[A, B, C]#λ] { case Tuple2K(a, Tuple2K(b, c)) =>
+            (a, b, c)
+          }
+          val fkAB_C_T3 = FunctionKLift[ProdAB_C[A, B, C]#λ, Tuple3K[A, B, C]#λ] { case Tuple2K(Tuple2K(a, b), c) =>
+            (a, b, c)
+          }
+          val fkT3_AB_C = FunctionKLift[Tuple3K[A, B, C]#λ, ProdAB_C[A, B, C]#λ] { case (a, b, c) =>
+            Tuple2K(Tuple2K(a, b), c)
+          }
+          val fkT3_A_BC = FunctionKLift[Tuple3K[A, B, C]#λ, ProdA_BC[A, B, C]#λ] { case (a, b, c) =>
+            Tuple2K(a, Tuple2K(b, c))
+          }
 
           EqFGH.eqv(
             F.imapK[ProdA_BC[A, B, C]#λ, Tuple3K[A, B, C]#λ](fs._1)(fkA_BC_T3)(fkT3_A_BC),

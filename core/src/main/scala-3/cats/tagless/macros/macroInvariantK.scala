@@ -33,51 +33,55 @@ object macroInvariantK:
     import quotes.reflect.*
 
     '{
-      new InvariantK[Alg] {
+      new InvariantK[Alg]:
         def imapK[F[_], G[_]](af: Alg[F])(fk: F ~> G)(gk: G ~> F): Alg[G] =
           ${ capture('af, 'fk, 'gk) }
-      }
     }
 
-  @experimental def capture[Alg[_[_]]: Type, F[_]: Type, G[_]: Type](eaf: Expr[Alg[F]], efk: Expr[F ~> G], egk: Expr[G ~> F])(using Quotes): Expr[Alg[G]] =
+  @experimental def capture[Alg[_[_]]: Type, F[_]: Type, G[_]: Type](
+      eaf: Expr[Alg[F]],
+      efk: Expr[F ~> G],
+      egk: Expr[G ~> F]
+  )(using Quotes): Expr[Alg[G]] =
     import quotes.reflect.*
     val className = "$anon()"
-    val parents   = List(TypeTree.of[Object], TypeTree.of[Alg[G]])
-    val decls     = memberSymbolsAsSeen[Alg, G]
+    val parents = List(TypeTree.of[Object], TypeTree.of[Alg[G]])
+    val decls = memberSymbolsAsSeen[Alg, G]
 
     val cls = Symbol.newClass(Symbol.spliceOwner, className, parents = parents.map(_.tpe), decls, selfType = None)
-    val body = cls.declaredMethods.map(method => (method, method.tree)).collect { case (method, DefDef(_, _, typedTree, _)) =>
-      DefDef(
-        method,
-        argss =>
-          typedTree.tpe.simplified.asMatchable match
-            case AppliedType(_, inner) =>
-              val aeaf      = methodApply(eaf)(method, argss)
-              val instanceK = summon(typeReprFor[ApplyK, IdK](inner))
+    val body =
+      cls.declaredMethods.map(method => (method, method.tree)).collect { case (method, DefDef(_, _, typedTree, _)) =>
+        DefDef(
+          method,
+          argss =>
+            typedTree.tpe.simplified.asMatchable match
+              case AppliedType(_, inner) =>
+                val aeaf = methodApply(eaf)(method, argss)
+                val instanceK = summon(typeReprFor[ApplyK, IdK](inner))
 
-              Some(
-                Apply(
+                Some(
                   Apply(
-                    Select.overloaded(
-                      instanceK,
-                      "imapK",
-                      List(TypeRepr.of[F], TypeRepr.of[G]),
-                      List(aeaf)
+                    Apply(
+                      Select.overloaded(
+                        instanceK,
+                        "imapK",
+                        List(TypeRepr.of[F], TypeRepr.of[G]),
+                        List(aeaf)
+                      ),
+                      List(efk.asTerm)
                     ),
-                    List(efk.asTerm)
-                  ),
-                  List(egk.asTerm)
+                    List(egk.asTerm)
+                  )
                 )
-              )
 
-            case e =>
-              val apply = methodApply(eaf)(method, argss)
-              Some(apply)
-      )
-    }
+              case e =>
+                val apply = methodApply(eaf)(method, argss)
+                Some(apply)
+        )
+      }
 
     val clsDef = ClassDef(cls, parents, body = body)
     val newCls = Typed(Apply(Select(New(TypeIdent(cls)), cls.primaryConstructor), Nil), TypeTree.of[Alg[G]])
-    val expr   = Block(List(clsDef), newCls).asExpr
+    val expr = Block(List(clsDef), newCls).asExpr
 
     expr.asExprOf[Alg[G]]

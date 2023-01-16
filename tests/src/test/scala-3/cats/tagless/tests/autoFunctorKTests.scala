@@ -46,7 +46,7 @@ import cats.tagless.laws.discipline.FunctorKTests
 import scala.annotation.nowarn
 import scala.util.Try
 
-class autoFunctorKTests extends CatsTaglessTestSuite {
+class autoFunctorKTests extends CatsTaglessTestSuite:
   import autoFunctorKTests.*
 
   checkAll("FunctorK[SafeAlg]", FunctorKTests[SafeAlg].functorK[Try, Option, List, Int])
@@ -71,19 +71,17 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   }
 
   test("Alg with non effect method") {
-    val tryInt = new AlgWithNonEffectMethod[Try] {
+    val tryInt = new AlgWithNonEffectMethod[Try]:
       def a(i: Int): Try[Int] = Try(i)
       def b(i: Int): Int = i
-    }
 
     assertEquals(tryInt.mapK(fk).a(3), Some(3))
     assertEquals(tryInt.mapK(fk).b(2), 2)
   }
 
   test("Alg with non effect method with default Impl") {
-    val tryInt = new AlgWithDefaultImpl[Try] {
+    val tryInt = new AlgWithDefaultImpl[Try]:
       def plusOne(i: Int): Try[Int] = Try(i + 1)
-    }
 
     assertEquals(tryInt.mapK(fk).plusOne(3), Some(4))
     assertEquals(tryInt.mapK(fk).minusOne(2), 1)
@@ -99,9 +97,8 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   // }
 
   test("Alg with extra type parameters before effect type") {
-    implicit val algWithExtraTP: AlgWithExtraTP2[String, Try] = new AlgWithExtraTP2[String, Try] {
+    implicit val algWithExtraTP: AlgWithExtraTP2[String, Try] = new AlgWithExtraTP2[String, Try]:
       def a(i: Int) = Try(i.toString)
-    }
 
     assertEquals(algWithExtraTP.mapK(fk).a(5), Some("5"))
   }
@@ -132,16 +129,15 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   // }
 
   test("Stack safety with Free") {
-    val incTry: Increment[Try] = new Increment[Try] {
+    val incTry: Increment[Try] = new Increment[Try]:
       def plusOne(i: Int) = Try(i + 1)
-    }
 
     val incFree = incTry.mapK(FunctionKLift[Try, Free[Try, *]](t => Free.liftF(t)))
 
-    def a(i: Int): Free[Try, Int] = for {
+    def a(i: Int): Free[Try, Int] = for
       j <- incFree.plusOne(i)
-      z <- if (j < 10000) a(j) else Free.pure[Try, Int](j)
-    } yield z
+      z <- if j < 10000 then a(j) else Free.pure[Try, Int](j)
+    yield z
     assertEquals(a(0).foldMap(FunctionK.id), util.Success(10000))
   }
 
@@ -161,9 +157,8 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   // }
 
   test("defs with no params") {
-    implicit object foo extends AlgWithDef[Try] {
+    implicit object foo extends AlgWithDef[Try]:
       def a = Try(1)
-    }
 
     assertEquals(foo.mapK(fk).a, Some(1))
   }
@@ -204,9 +199,8 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   // }
 
   test("alg with default parameter") {
-    implicit object foo extends AlgWithDefaultParameter[Try] {
+    implicit object foo extends AlgWithDefaultParameter[Try]:
       def greet(name: String) = Try(s"Hello $name")
-    }
 
     val bar = implicitly[FunctorK[AlgWithDefaultParameter]].mapK(foo)(fk)
     assertEquals(bar.greet(), Some("Hello World"))
@@ -214,9 +208,8 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   }
 
   test("alg with final method") {
-    implicit object foo extends AlgWithFinalMethod[Try] {
+    implicit object foo extends AlgWithFinalMethod[Try]:
       def log(msg: String) = Try(msg)
-    }
 
     val bar = implicitly[FunctorK[AlgWithFinalMethod]].mapK(foo)(fk)
     assertEquals(bar.info("green"), Some("[info] green"))
@@ -224,9 +217,8 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   }
 
   test("alg with by-name parameter") {
-    implicit object foo extends AlgWithByNameParameter[Try] {
+    implicit object foo extends AlgWithByNameParameter[Try]:
       def log(msg: => String) = Try(msg)
-    }
 
     val bar = implicitly[FunctorK[AlgWithByNameParameter]].mapK(foo)(fk)
     assertEquals(bar.log("level".reverse), Some("level"))
@@ -237,15 +229,13 @@ class autoFunctorKTests extends CatsTaglessTestSuite {
   //   val optionBuilder = listBuilder.mapK[Option](FunctionKLift[List, Option](_.headOption))
   //   assertEquals(optionBuilder.withFoo("bar").unit, Some(()))
   // }
-}
 
-object autoFunctorKTests {
+object autoFunctorKTests:
   implicit val fk: Try ~> Option = FunctionKLift[Try, Option](_.toOption)
 
-  trait AlgWithNonEffectMethod[F[_]] derives FunctorK {
+  trait AlgWithNonEffectMethod[F[_]] derives FunctorK:
     def a(i: Int): F[Int]
     def b(i: Int): Int
-  }
 
   // TODO: @finalAlg
   // trait AlgWithTypeMember[F[_]] derives FunctorK {
@@ -277,37 +267,30 @@ object autoFunctorKTests {
   // }
 
   // TODO: @finalAlg
-  trait AlgWithExtraTP2[T, F[_]] derives FunctorK {
+  trait AlgWithExtraTP2[T, F[_]] derives FunctorK:
     def a(i: Int): F[T]
-  }
 
-  trait Increment[F[_]] derives FunctorK {
+  trait Increment[F[_]] derives FunctorK:
     def plusOne(i: Int): F[Int]
-  }
 
-  trait AlgWithoutAutoDerivation[F[_]] derives FunctorK {
+  trait AlgWithoutAutoDerivation[F[_]] derives FunctorK:
     def a(i: Int): F[Int]
-  }
 
-  trait AlgWithDefaultImpl[F[_]] derives FunctorK {
+  trait AlgWithDefaultImpl[F[_]] derives FunctorK:
     def plusOne(i: Int): F[Int]
     def minusOne(i: Int): Int = i - 1
-  }
 
   // TODO: @finalAlg
-  trait AlgWithDef[F[_]] derives FunctorK {
+  trait AlgWithDef[F[_]] derives FunctorK:
     def a: F[Int]
-  }
 
   // TODO: @finalAlg
-  trait AlgWithTParamInMethod[F[_]] derives FunctorK {
+  trait AlgWithTParamInMethod[F[_]] derives FunctorK:
     def a[T](t: T): F[String]
-  }
 
   // TODO: @finalAlg
-  trait AlgWithContextBounds[F[_]] derives FunctorK {
+  trait AlgWithContextBounds[F[_]] derives FunctorK:
     def a[T: Show](t: Int): F[String]
-  }
 
   // TODO: @finalAlg
   // trait AlgWithAbstractTypeClass[F[_]] derives FunctorK {
@@ -321,44 +304,35 @@ object autoFunctorKTests {
   // }
 
   // TODO: @finalAlg
-  trait AlgWithCurryMethod[F[_]] derives FunctorK {
+  trait AlgWithCurryMethod[F[_]] derives FunctorK:
     def a(t: Int)(b: String): F[String]
-  }
 
   // TODO: @finalAlg
-  trait AlgWithOwnDerivation[F[_]] derives FunctorK {
+  trait AlgWithOwnDerivation[F[_]] derives FunctorK:
     def a(b: Int): F[String]
-  }
 
-  object AlgWithOwnDerivation {
-    implicit def fromMonad[F[_]: Monad]: AlgWithOwnDerivation[F] = new AlgWithOwnDerivation[F] {
+  object AlgWithOwnDerivation:
+    implicit def fromMonad[F[_]: Monad]: AlgWithOwnDerivation[F] = new AlgWithOwnDerivation[F]:
       def a(b: Int): F[String] = Monad[F].pure(b.toString)
-    }
-  }
 
-  trait AlgWithDefaultParameter[F[_]] derives FunctorK {
+  trait AlgWithDefaultParameter[F[_]] derives FunctorK:
     def greet(name: String = "World"): F[String]
-  }
 
-  trait AlgWithFinalMethod[F[_]] derives FunctorK {
+  trait AlgWithFinalMethod[F[_]] derives FunctorK:
     def log(msg: String): F[String]
     final def info(msg: String): F[String] = log(s"[info] $msg")
     final def warn(msg: String): F[String] = log(s"[warn] $msg")
-  }
 
-  trait AlgWithByNameParameter[F[_]] derives FunctorK {
+  trait AlgWithByNameParameter[F[_]] derives FunctorK:
     def log(msg: => String): F[String]
-  }
 
-  trait AlgWithVarArgsParameter[F[_]] derives FunctorK {
+  trait AlgWithVarArgsParameter[F[_]] derives FunctorK:
     def sum(xs: Int*): Int
     def fSum(xs: Int*): F[Int]
-  }
 
-  trait BuilderAlgebra[F[_]] {
+  trait BuilderAlgebra[F[_]]:
     def unit: F[Unit]
     def withFoo(foo: String): BuilderAlgebra[F]
-  }
 
   // object BuilderAlgebra {
   //   implicit val functorK: FunctorK[BuilderAlgebra] = Derive.functorK
@@ -372,4 +346,3 @@ object autoFunctorKTests {
   // trait AlgWithContravariantK[F[_]] derives FunctorK {
   //   def app(f: Cokleisli[F, String, Int])(x: String): F[Int]
   // }
-}

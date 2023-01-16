@@ -26,7 +26,7 @@ import cats.tagless.laws.discipline.InvariantKTests
 import scala.annotation.nowarn
 import scala.util.Try
 
-class autoInvariantKTests extends CatsTaglessTestSuite {
+class autoInvariantKTests extends CatsTaglessTestSuite:
   import autoInvariantKTests.*
 
   checkAll("InvariantK[SafeInvAlg]", InvariantKTests[SafeInvAlg].invariantK[Try, Option, List])
@@ -34,9 +34,8 @@ class autoInvariantKTests extends CatsTaglessTestSuite {
   checkAll("InvariantK is Serializable", SerializableTests.serializable(InvariantK[SafeInvAlg]))
 
   test("Alg with non effect method") {
-    val tryInt = new NoEffectMethod[Try] {
+    val tryInt = new NoEffectMethod[Try]:
       def a(i: Int): Int = i
-    }
 
     assertEquals(tryInt.imapK(toFk)(otFk).a(2), 2)
   }
@@ -127,15 +126,13 @@ class autoInvariantKTests extends CatsTaglessTestSuite {
   //   }
   //   assertEquals(foo.imapK(toFk)(otFk).a(Option(1)), Some("1"))
   // }
-}
 
-object autoInvariantKTests {
+object autoInvariantKTests:
   implicit val toFk: Try ~> Option = FunctionKLift[Try, Option](_.toOption)
   implicit val otFk: Option ~> Try = FunctionKLift[Option, Try](o => Try(o.get))
 
-  trait NoEffectMethod[F[_]] derives InvariantK {
+  trait NoEffectMethod[F[_]] derives InvariantK:
     def a(i: Int): Int
-  }
 
   // trait ContravariantEff[F[_]] derives InvariantK {
   //   def a(i: F[Int], j: String): Int
@@ -178,9 +175,8 @@ object autoInvariantKTests {
   // }
 
   // @finalAlg
-  trait AlgWithDefaultImpl[F[_]] derives InvariantK {
+  trait AlgWithDefaultImpl[F[_]] derives InvariantK:
     def const(i: F[Int]): F[Int] = i
-  }
 
   // @finalAlg
   // trait AlgWithTypeParam[F[_]] derives InvariantK {
@@ -192,14 +188,12 @@ object autoInvariantKTests {
   //   def a(t: F[Int])(b: String): F[String]
   // }
 
-  trait AlgWithVarArgsParameter[F[_]] derives InvariantK {
+  trait AlgWithVarArgsParameter[F[_]] derives InvariantK:
     def sum(xs: Int*): Int
     def covariantSum(xs: Int*): F[Int]
     // def contravariantSum(xs: F[Int]*): Int
     // def invariantSum(xs: F[Int]*): F[Int]
-  }
 
   // trait AlgWithByNameParameter[F[_]] derives InvariantK {
   //   def whenM(cond: F[Boolean])(action: => F[Unit]): F[Unit]
   // }
-}

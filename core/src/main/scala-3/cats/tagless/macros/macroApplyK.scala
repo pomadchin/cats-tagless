@@ -33,10 +33,9 @@ object macroApplyK:
     import quotes.reflect.*
 
     '{
-      new ApplyK[Alg] {
+      new ApplyK[Alg]:
         def mapK[F[_], G[_]](af: Alg[F])(fk: F ~> G): Alg[G] =
           ${ macroFunctorK.capture('af, 'fk) }
         def productK[F[_], G[_]](af: Alg[F], ag: Alg[G]): Alg[Tuple2K[F, G, *]] =
           ${ macroSemigroupalK.capture('af, 'ag) }
-      }
     }

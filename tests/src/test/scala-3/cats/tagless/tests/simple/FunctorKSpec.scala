@@ -37,23 +37,26 @@ class FunctorKSpec extends munit.FunSuite with Fixtures:
 
     val optionalInstance = functorK.mapK(instance)(FunctionK.lift([X] => (id: Id[X]) => Some(id)))
 
-    assertEquals(optionalInstance.id(),  Some(instance.id()))
-    assertEquals(optionalInstance.list(0),  Some(instance.list(0)))
-    assertEquals(optionalInstance.lists(0, 1),  Some(instance.lists(0, 1)))
-    assertEquals(optionalInstance.paranthesless,  Some(instance.paranthesless))
-    assertEquals(optionalInstance.tuple,  Some(instance.tuple))
+    assertEquals(optionalInstance.id(), Some(instance.id()))
+    assertEquals(optionalInstance.list(0), Some(instance.list(0)))
+    assertEquals(optionalInstance.lists(0, 1), Some(instance.lists(0, 1)))
+    assertEquals(optionalInstance.paranthesless, Some(instance.paranthesless))
+    assertEquals(optionalInstance.tuple, Some(instance.tuple))
   }
 
   test("DeriveMacro should not derive instance for a not simple algebra".ignore) {
-    assertEquals(typeCheckErrors("Derive.functorK[NotSimpleService]").map(_.message),  List("Derive works with simple algebras only."))
+    assertEquals(
+      typeCheckErrors("Derive.functorK[NotSimpleService]").map(_.message),
+      List("Derive works with simple algebras only.")
+    )
   }
 
   test("FunctorK derives syntax") {
     val optionalInstance = instance.mapK(FunctionK.lift([X] => (id: Id[X]) => Some(id)))
 
-    assertEquals(optionalInstance.id(),  Some(instance.id()))
-    assertEquals(optionalInstance.list(0),  Some(instance.list(0)))
-    assertEquals(optionalInstance.lists(0, 1),  Some(instance.lists(0, 1)))
-    assertEquals(optionalInstance.paranthesless,  Some(instance.paranthesless))
-    assertEquals(optionalInstance.tuple,  Some(instance.tuple))
+    assertEquals(optionalInstance.id(), Some(instance.id()))
+    assertEquals(optionalInstance.list(0), Some(instance.list(0)))
+    assertEquals(optionalInstance.lists(0, 1), Some(instance.lists(0, 1)))
+    assertEquals(optionalInstance.paranthesless, Some(instance.paranthesless))
+    assertEquals(optionalInstance.tuple, Some(instance.tuple))
   }

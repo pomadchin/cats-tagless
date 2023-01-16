@@ -33,29 +33,32 @@ class SemigroupalKSpec extends munit.FunSuite with Fixtures:
   }
 
   test("SemigorupalK should be a valid instance for a simple algebra") {
-    val functorK         = Derive.functorK[SimpleService]
-    val semigroupalK     = Derive.semigroupalK[SimpleService]
+    val functorK = Derive.functorK[SimpleService]
+    val semigroupalK = Derive.semigroupalK[SimpleService]
     val optionalInstance = functorK.mapK(instance)(FunctionK.lift([X] => (id: Id[X]) => Some(id)))
     val combinedInstance = semigroupalK.productK(instance, optionalInstance)
 
-    assertEquals(combinedInstance.id(),  Tuple2K(instance.id(), optionalInstance.id()))
-    assertEquals(combinedInstance.list(0),  Tuple2K(instance.list(0), optionalInstance.list(0)))
-    assertEquals(combinedInstance.lists(0, 1),  Tuple2K(instance.lists(0, 1), optionalInstance.lists(0, 1)))
-    assertEquals(combinedInstance.paranthesless,  Tuple2K(instance.paranthesless, optionalInstance.paranthesless))
-    assertEquals(combinedInstance.tuple,  Tuple2K(instance.tuple, optionalInstance.tuple))
+    assertEquals(combinedInstance.id(), Tuple2K(instance.id(), optionalInstance.id()))
+    assertEquals(combinedInstance.list(0), Tuple2K(instance.list(0), optionalInstance.list(0)))
+    assertEquals(combinedInstance.lists(0, 1), Tuple2K(instance.lists(0, 1), optionalInstance.lists(0, 1)))
+    assertEquals(combinedInstance.paranthesless, Tuple2K(instance.paranthesless, optionalInstance.paranthesless))
+    assertEquals(combinedInstance.tuple, Tuple2K(instance.tuple, optionalInstance.tuple))
   }
 
   test("DeriveMacro should not derive instance for a not simple algebra".ignore) {
-    assertEquals(typeCheckErrors("Derive.semigroupalK[NotSimpleService]").map(_.message),  List("Derive works with simple algebras only."))
+    assertEquals(
+      typeCheckErrors("Derive.semigroupalK[NotSimpleService]").map(_.message),
+      List("Derive works with simple algebras only.")
+    )
   }
 
   test("SemigroupalK derives syntax") {
     val optionalInstance = instance.mapK(FunctionK.lift([X] => (id: Id[X]) => Some(id)))
     val combinedInstance = instance.productK(optionalInstance)
 
-    assertEquals(combinedInstance.id(),  Tuple2K(instance.id(), optionalInstance.id()))
-    assertEquals(combinedInstance.list(0),  Tuple2K(instance.list(0), optionalInstance.list(0)))
-    assertEquals(combinedInstance.lists(0, 1),  Tuple2K(instance.lists(0, 1), optionalInstance.lists(0, 1)))
-    assertEquals(combinedInstance.paranthesless,  Tuple2K(instance.paranthesless, optionalInstance.paranthesless))
-    assertEquals(combinedInstance.tuple,  Tuple2K(instance.tuple, optionalInstance.tuple))
+    assertEquals(combinedInstance.id(), Tuple2K(instance.id(), optionalInstance.id()))
+    assertEquals(combinedInstance.list(0), Tuple2K(instance.list(0), optionalInstance.list(0)))
+    assertEquals(combinedInstance.lists(0, 1), Tuple2K(instance.lists(0, 1), optionalInstance.lists(0, 1)))
+    assertEquals(combinedInstance.paranthesless, Tuple2K(instance.paranthesless, optionalInstance.paranthesless))
+    assertEquals(combinedInstance.tuple, Tuple2K(instance.tuple, optionalInstance.tuple))
   }

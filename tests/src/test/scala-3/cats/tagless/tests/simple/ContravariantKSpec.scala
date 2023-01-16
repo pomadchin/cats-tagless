@@ -36,11 +36,11 @@ class ContravariantKSpec extends munit.FunSuite with Fixtures:
   }
 
   test("DeriveMacro should derive instance for a simple algebra #2") {
-    def contravariantK   = Derive.contravariantK[SimpleServiceC]
+    def contravariantK = Derive.contravariantK[SimpleServiceC]
     val fk: Option ~> Id = FunctionK.lift[Option, Id]([X] => (id: Option[X]) => id.get)
     val optionalInstance = contravariantK.contramapK(instancec)(fk)
 
-    val f: (Int, String) => Int = { (i, s) => i + s.toInt }
+    val f: (Int, String) => Int = (i, s) => i + s.toInt
 
     assertEquals(optionalInstance.id(Some(23)), instancec.id(23))
     assertEquals(optionalInstance.ids(Some(0), Some(1)), instancec.ids(0, 1))
@@ -48,14 +48,17 @@ class ContravariantKSpec extends munit.FunSuite with Fixtures:
   }
 
   test("DeriveMacro should not derive instance for a not simple algebra") {
-    assertEquals(typeCheckErrors("Derive.contravariantK[NotSimpleService]").map(_.message), List("Derive works with simple algebras only."))
+    assertEquals(
+      typeCheckErrors("Derive.contravariantK[NotSimpleService]").map(_.message),
+      List("Derive works with simple algebras only.")
+    )
   }
 
   test("ContravariantK derives syntax") {
     val fk: Option ~> Id = FunctionK.lift[Option, Id]([X] => (id: Option[X]) => id.get)
     val optionalInstance = instancec.contramapK(fk)
 
-    val f: (Int, String) => Int = { (i, s) => i + s.toInt }
+    val f: (Int, String) => Int = (i, s) => i + s.toInt
 
     assertEquals(optionalInstance.id(Some(23)), instancec.id(23))
     assertEquals(optionalInstance.ids(Some(0), Some(1)), instancec.ids(0, 1))
