@@ -31,12 +31,17 @@ object macroFunctorK:
   @experimental def functorK[Alg[_[_]]: Type](using Quotes): Expr[FunctorK[Alg]] =
     import quotes.reflect.*
 
-    '{
+    val res = '{
       new FunctorK[Alg] {
         def mapK[F[_], G[_]](af: Alg[F])(fk: F ~> G): Alg[G] =
           ${ capture('af, 'fk) }
       }
     }
+
+    // println("-----------")
+    // println(res.show)
+    // println("-----------")
+    res
 
   @experimental def capture[Alg[_[_]]: Type, F[_]: Type, G[_]: Type](eaf: Expr[Alg[F]], efk: Expr[F ~> G])(using Quotes): Expr[Alg[G]] =
     import quotes.reflect.*
@@ -50,15 +55,26 @@ object macroFunctorK:
         method,
         argss =>
           typedTree.tpe.simplified.asMatchable match
-            case AppliedType(_, inner) =>
+            case at @ AppliedType(o, inner) =>
               val apply = methodApply(eaf)(method, argss)
+              // println("**********")
+              // println(apply)
+              // println(argss)
+              // println(at)
+              // println("**********")
               Some(Select.overloaded(efk.asTerm, "apply", inner, List(apply)))
-            case _ => report.errorAndAbort("Derive works with simple algebras only.")
+            case e =>
+              val apply = methodApply(eaf)(method, argss)
+              Some(apply)
       )
     }
 
     val clsDef = ClassDef(cls, parents, body = body)
     val newCls = Typed(Apply(Select(New(TypeIdent(cls)), cls.primaryConstructor), Nil), TypeTree.of[Alg[G]])
     val expr   = Block(List(clsDef), newCls).asExpr
+
+    // println("============")
+    // println(expr.show)
+    // println("============")
 
     expr.asExprOf[Alg[G]]

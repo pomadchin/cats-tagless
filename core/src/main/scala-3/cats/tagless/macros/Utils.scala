@@ -34,7 +34,18 @@ object Utils:
       import quotes.reflect.*
       // method with no parentheses
       if argss.isEmpty then Select(e.asTerm, method)
-      else Apply(Select(e.asTerm, method), argss.headOption.getOrElse(Nil).collect { case t: Term => t })
+      else {
+        val (targs, terms, cterms) = 
+          argss match 
+            case fst :: Nil        => (Nil, fst.collect { case t: Term => t }, Nil)
+            case fst :: snd :: Nil => (fst.collect { case t: TypeTree => t }, snd.collect { case t: Term => t }, Nil)
+            case fst :: snd :: trd :: Nil => (fst.collect { case t: TypeTree => t }, snd.collect { case t: Term => t }, trd.collect { case t: Term => t })
+            case _                 => (Nil, Nil, Nil)
+
+        val select = if targs.nonEmpty then TypeApply(Select(e.asTerm, method), targs) else Select(e.asTerm, method)
+        val appl = Apply(select, terms)
+        if cterms.nonEmpty then Apply(appl, cterms) else appl
+      }
 
   def memberSymbolsAsSeen[Alg[_[_]]: Type, F[_]: Type](using Quotes): quotes.reflect.Symbol => List[quotes.reflect.Symbol] =
     import quotes.reflect.*
