@@ -52,7 +52,7 @@ val scalaCheckVersion = "1.17.0"
 
 val macroSettings = List(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) =>
+    case Some((2, _)) =>
       List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided)
     case _ => Nil
   }),
