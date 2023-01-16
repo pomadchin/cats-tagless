@@ -45,23 +45,24 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
 val catsVersion = "2.9.0"
 val circeVersion = "0.14.3"
 val disciplineVersion = "1.5.1"
-val disciplineMunitVersion = "1.0.9"
+val disciplineMunitVersion = "2.0.0-M3"
 val kindProjectorVersion = "0.13.2"
 val paradiseVersion = "2.1.1"
 val scalaCheckVersion = "1.17.0"
 
 val macroSettings = List(
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, 13)) => List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided)
-    case _             => Nil
+    case Some((2, 13)) =>
+      List("scala-compiler", "scala-reflect").map("org.scala-lang" % _ % scalaVersion.value % Provided)
+    case _ => Nil
   }),
   scalacOptions ++= (scalaBinaryVersion.value match {
     case "2.13" => List("-Ymacro-annotations")
-    case _      => Nil
+    case _ => Nil
   }),
   libraryDependencies ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 13)) | Some((3, _)) => Nil
-    case _                            => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
+    case _ => List(compilerPlugin(("org.scalamacros" %% "paradise" % paradiseVersion).cross(CrossVersion.full)))
   })
 )
 
@@ -190,21 +191,22 @@ lazy val commonSettings = List(
   autoAPIMappings := true,
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
     // TODO: review and cleanup flags
-    case Some((3, _))        => Seq(
-      "-deprecation",
-      "-unchecked",
-      "-language:implicitConversions",
-      "-language:reflectiveCalls",
-      "-language:higherKinds",
-      "-language:postfixOps",
-      "-language:existentials",
-      "-feature",
-      "-source:future",
-      "-explain",
-      "-Ykind-projector:underscores"
-    )
-    case Some((2, 12 | 13))  => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
-    case _                   => Nil
+    case Some((3, _)) =>
+      Seq(
+        "-deprecation",
+        "-unchecked",
+        "-language:implicitConversions",
+        "-language:reflectiveCalls",
+        "-language:higherKinds",
+        "-language:postfixOps",
+        "-language:existentials",
+        "-feature",
+        "-source:future",
+        "-explain",
+        "-Ykind-projector:underscores"
+      )
+    case Some((2, 12 | 13)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+    case _ => Nil
   })
 )
 

@@ -18,7 +18,6 @@ package cats.tagless
 
 import cats.tagless.derived.DerivedSemigroupalK
 import cats.*
-import cats.arrow.FunctionK
 import cats.data.*
 import cats.kernel.CommutativeMonoid
 import cats.syntax.all.*
