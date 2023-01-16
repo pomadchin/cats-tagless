@@ -35,16 +35,22 @@ object Utils:
       // method with no parentheses
       if argss.isEmpty then Select(e.asTerm, method)
       else {
-        val (targs, terms, cterms) = 
-          argss match 
-            case fst :: Nil        => (Nil, fst.collect { case t: Term => t }, Nil)
-            case fst :: snd :: Nil => (fst.collect { case t: TypeTree => t }, snd.collect { case t: Term => t }, Nil)
-            case fst :: snd :: trd :: Nil => (fst.collect { case t: TypeTree => t }, snd.collect { case t: Term => t }, trd.collect { case t: Term => t })
-            case _                 => (Nil, Nil, Nil)
+        // collect all terms
+        // empty args are allowable, carefully don't skip empty lists
+        val terms = 
+          argss
+            .map { list => if list.nonEmpty then (list.collect { case t: Term => t }, true) else (Nil, false) }
+            .collect { case (list, skippable) if skippable && list.nonEmpty || !skippable => list }
 
-        val select = if targs.nonEmpty then TypeApply(Select(e.asTerm, method), targs) else Select(e.asTerm, method)
-        val appl = Apply(select, terms)
-        if cterms.nonEmpty then Apply(appl, cterms) else appl
+        // collect all targs
+        val targs = argss.map(_.collect { case t: TypeTree => t }).filter(_.nonEmpty)
+
+        // construct type args first 
+        val methodT = targs.foldLeft(Select(e.asTerm, method): Term)((acc, args) => TypeApply(acc, args))
+        // construct arguments next
+        val methodC = terms.foldLeft(methodT)((acc, args) => Apply(acc, args))
+
+        methodC
       }
 
   def memberSymbolsAsSeen[Alg[_[_]]: Type, F[_]: Type](using Quotes): quotes.reflect.Symbol => List[quotes.reflect.Symbol] =

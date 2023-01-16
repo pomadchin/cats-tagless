@@ -47,19 +47,16 @@ class autoSemigroupalKTests extends CatsTaglessTestSuite {
 
 object autoSemigroupalKTests {
 
-  // @autoSemigroupalK
-  // trait algWithGenericType[F[_]] {
-  //   def a[T](a: T): F[Unit]
-  // }
+  trait algWithGenericType[F[_]] derives SemigroupalK {
+    def a[T](a: T): F[Unit]
+  }
 
-  // @autoSemigroupalK
-  // trait algWithCurryMethod[F[_]] {
-  //   def a(b: String)(d: Int): F[Unit]
-  // }
+  trait algWithCurryMethod[F[_]] derives SemigroupalK {
+    def a(b: String)(d: Int): F[Unit]
+  }
 
-  // @autoSemigroupalK
-  // trait AlgWithVarArgsParameter[F[_]] {
-  //   def sum(xs: Int*): Int
-  //   def effectfulSum(xs: Int*): F[Int]
-  // }
+  trait AlgWithVarArgsParameter[F[_]] derives SemigroupalK {
+    // def sum(xs: Int*): Int
+    def effectfulSum(xs: Int*): F[Int]
+  }
 }
