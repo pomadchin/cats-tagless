@@ -31,7 +31,7 @@ import scala.compiletime.testing.*
 class ApplyKSpec extends munit.FunSuite with Fixtures:
   test("DeriveMacro should derive instance for a simple algebra") {
     val applyK = Derive.applyK[SimpleService]
-    assertEquals(applyK.isInstanceOf[ApplyK[SimpleService]], true)
+    assert(applyK.isInstanceOf[ApplyK[SimpleService]])
   }
 
   test("ApplyK should be a valid instance for a simple algebra") {

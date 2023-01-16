@@ -29,7 +29,7 @@ class FunctorKSpec extends munit.FunSuite with Fixtures:
 
   test("DeriveMacro should derive instance for a simple algebra") {
     val functorK = Derive.functorK[SimpleService]
-    assertEquals(functorK.isInstanceOf[FunctorK[SimpleService]], true)
+    assert(functorK.isInstanceOf[FunctorK[SimpleService]])
   }
 
   test("FunctorK should be a valid instance for a simple algebra") {

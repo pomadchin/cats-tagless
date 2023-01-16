@@ -31,7 +31,7 @@ import scala.compiletime.testing.*
 class InvariantKSpec extends munit.FunSuite with Fixtures:
   test("DeriveMacro should derive instance for a simple algebra") {
     val invariantK = Derive.invariantK[SimpleService]
-    assertEquals(invariantK.isInstanceOf[InvariantK[SimpleService]], true)
+    assert(invariantK.isInstanceOf[InvariantK[SimpleService]])
   }
 
   test("InvariantK should be a valid instance for a simple algebra") {

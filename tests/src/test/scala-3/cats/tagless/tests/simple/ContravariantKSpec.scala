@@ -32,7 +32,7 @@ class ContravariantKSpec extends munit.FunSuite with Fixtures:
 
   test("DeriveMacro should derive instance for a simple algebra") {
     def contravariantK = Derive.contravariantK[SimpleServiceC]
-    assertEquals(contravariantK.isInstanceOf[ContravariantK[SimpleServiceC]], true)
+    assert(contravariantK.isInstanceOf[ContravariantK[SimpleServiceC]])
   }
 
   test("DeriveMacro should derive instance for a simple algebra #2") {

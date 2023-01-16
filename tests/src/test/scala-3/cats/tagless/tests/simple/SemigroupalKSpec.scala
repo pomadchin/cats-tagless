@@ -29,7 +29,7 @@ import scala.compiletime.testing.*
 class SemigroupalKSpec extends munit.FunSuite with Fixtures:
   test("DeriveMacro should derive instance for a simple algebra") {
     val semigroupalK = Derive.semigroupalK[SimpleService]
-    assertEquals(semigroupalK.isInstanceOf[SemigroupalK[SimpleService]], true)
+    assert(semigroupalK.isInstanceOf[SemigroupalK[SimpleService]])
   }
 
   test("SemigorupalK should be a valid instance for a simple algebra") {
