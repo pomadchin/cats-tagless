@@ -73,8 +73,7 @@ object autoApplyKTests {
   }
 
   trait AlgWithVarArgsParameter[F[_]] derives ApplyK {
-    // TODO: Macro should handle it
-    // def sum(xs: Int*): Int
+    def sum(xs: Int*): Int
     def fSum(xs: Int*): F[Int]
   }
 }

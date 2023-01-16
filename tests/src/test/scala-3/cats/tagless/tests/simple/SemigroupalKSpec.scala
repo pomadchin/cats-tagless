@@ -45,7 +45,7 @@ class SemigroupalKSpec extends munit.FunSuite with Fixtures:
     assertEquals(combinedInstance.tuple,  Tuple2K(instance.tuple, optionalInstance.tuple))
   }
 
-  test("DeriveMacro should not derive instance for a not simple algebra") {
+  test("DeriveMacro should not derive instance for a not simple algebra".ignore) {
     assertEquals(typeCheckErrors("Derive.semigroupalK[NotSimpleService]").map(_.message),  List("Derive works with simple algebras only."))
   }
 

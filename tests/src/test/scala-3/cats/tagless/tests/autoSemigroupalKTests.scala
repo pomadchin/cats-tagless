@@ -56,7 +56,7 @@ object autoSemigroupalKTests {
   }
 
   trait AlgWithVarArgsParameter[F[_]] derives SemigroupalK {
-    // def sum(xs: Int*): Int
+    def sum(xs: Int*): Int
     def effectfulSum(xs: Int*): F[Int]
   }
 }

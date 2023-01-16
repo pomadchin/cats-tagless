@@ -355,10 +355,10 @@ object autoFunctorKTests {
     def fSum(xs: Int*): F[Int]
   }
 
-  // trait BuilderAlgebra[F[_]] {
-  //   def unit: F[Unit]
-  //   def withFoo(foo: String): BuilderAlgebra[F]
-  // }
+  trait BuilderAlgebra[F[_]] {
+    def unit: F[Unit]
+    def withFoo(foo: String): BuilderAlgebra[F]
+  }
 
   // object BuilderAlgebra {
   //   implicit val functorK: FunctorK[BuilderAlgebra] = Derive.functorK

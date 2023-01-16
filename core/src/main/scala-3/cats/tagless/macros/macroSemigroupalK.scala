@@ -32,12 +32,17 @@ object macroSemigroupalK:
   @experimental def semigroupalK[Alg[_[_]]: Type](using Quotes): Expr[SemigroupalK[Alg]] =
     import quotes.reflect.*
 
-    '{
+    val res = '{
       new SemigroupalK[Alg] {
         def productK[F[_], G[_]](af: Alg[F], ag: Alg[G]): Alg[Tuple2K[F, G, *]] =
           ${ capture('af, 'ag) }
       }
     }
+
+    // println("-----------")
+    // println(res.show)
+    // println("-----------")
+    res
 
   @experimental def capture[Alg[_[_]]: Type, F[_]: Type, G[_]: Type](afe: Expr[Alg[F]], age: Expr[Alg[G]])(using Quotes): Expr[Alg[Tuple2K[F, G, *]]] =
     import quotes.reflect.*
@@ -55,12 +60,18 @@ object macroSemigroupalK:
               val aafe = methodApply(afe)(method, argss)
               val aage = methodApply(age)(method, argss)
               Some(newInstanceCall(Symbol.classSymbol(classNameTuple2K), inner, List(aafe, aage)))
-            case _ => report.errorAndAbort("Derive works with simple algebras only.")
+            case e =>
+              val apply = methodApply(afe)(method, argss)
+              Some(apply)
       )
     }
 
     val clsDef = ClassDef(cls, parents, body = body)
     val newCls = Typed(Apply(Select(New(TypeIdent(cls)), cls.primaryConstructor), Nil), TypeTree.of[Alg[Tuple2K[F, G, *]]])
     val expr   = Block(List(clsDef), newCls).asExpr
+
+    // println("============")
+    // println(expr.show)
+    // println("============")
 
     expr.asExprOf[Alg[Tuple2K[F, G, *]]]

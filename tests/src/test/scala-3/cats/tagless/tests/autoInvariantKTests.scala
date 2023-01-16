@@ -33,13 +33,13 @@ class autoInvariantKTests extends CatsTaglessTestSuite {
   checkAll("InvariantK[CalculatorAlg]", InvariantKTests[CalculatorAlg].invariantK[Try, Option, List])
   checkAll("InvariantK is Serializable", SerializableTests.serializable(InvariantK[SafeInvAlg]))
 
-  // test("Alg with non effect method") {
-  //   val tryInt = new NoEffectMethod[Try] {
-  //     def a(i: Int): Int = i
-  //   }
+  test("Alg with non effect method") {
+    val tryInt = new NoEffectMethod[Try] {
+      def a(i: Int): Int = i
+    }
 
-  //   assertEquals(tryInt.imapK(toFk)(otFk).a(2), 2)
-  // }
+    assertEquals(tryInt.imapK(toFk)(otFk).a(2), 2)
+  }
 
   // test("Alg with contravariant Eff method") {
   //   val tryInt = new ContravariantEff[Try] {
@@ -133,9 +133,9 @@ object autoInvariantKTests {
   implicit val toFk: Try ~> Option = FunctionKLift[Try, Option](_.toOption)
   implicit val otFk: Option ~> Try = FunctionKLift[Option, Try](o => Try(o.get))
 
-  // trait NoEffectMethod[F[_]] derives InvariantK {
-  //   def a(i: Int): Int
-  // }
+  trait NoEffectMethod[F[_]] derives InvariantK {
+    def a(i: Int): Int
+  }
 
   // trait ContravariantEff[F[_]] derives InvariantK {
   //   def a(i: F[Int], j: String): Int
@@ -192,12 +192,12 @@ object autoInvariantKTests {
   //   def a(t: F[Int])(b: String): F[String]
   // }
 
-  // trait AlgWithVarArgsParameter[F[_]] derives InvariantK {
-  //   def sum(xs: Int*): Int
-  //   def covariantSum(xs: Int*): F[Int]
-  //   def contravariantSum(xs: F[Int]*): Int
-  //   def invariantSum(xs: F[Int]*): F[Int]
-  // }
+  trait AlgWithVarArgsParameter[F[_]] derives InvariantK {
+    def sum(xs: Int*): Int
+    def covariantSum(xs: Int*): F[Int]
+    // def contravariantSum(xs: F[Int]*): Int
+    // def invariantSum(xs: F[Int]*): F[Int]
+  }
 
   // trait AlgWithByNameParameter[F[_]] derives InvariantK {
   //   def whenM(cond: F[Boolean])(action: => F[Unit]): F[Unit]

@@ -70,7 +70,9 @@ object macroInvariantK:
                 )
               )
 
-            case _ => report.errorAndAbort("Derive works with simple algebras only.")
+            case e =>
+              val apply = methodApply(eaf)(method, argss)
+              Some(apply)
       )
     }
 
