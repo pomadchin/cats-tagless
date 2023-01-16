@@ -190,24 +190,17 @@ lazy val commonSettings = List(
   apiURL := Some(url("https://typelevel.org/cats-tagless/api/")),
   autoAPIMappings := true,
   scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    // TODO: review and cleanup flags
     case Some((3, _)) =>
       Seq(
-        "-deprecation",
-        "-unchecked",
-        "-language:implicitConversions",
-        "-language:reflectiveCalls",
-        "-language:higherKinds",
-        "-language:postfixOps",
-        "-language:existentials",
-        "-feature",
+        "-language:adhocExtensions",
         "-source:future",
-        "-explain",
-        "-Ykind-projector:underscores"
+        "-explain"
       )
     case Some((2, 12 | 13)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
     case _ => Nil
-  })
+  }),
+  // sbt-typelevel sets -source:3.0-migration, we'd like to replace it with -source:future
+  scalacOptions := scalacOptions.value.filterNot(_ == "-source:3.0-migration")
 )
 
 lazy val commonJsSettings = List(

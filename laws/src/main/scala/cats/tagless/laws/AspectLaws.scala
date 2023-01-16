@@ -19,7 +19,6 @@ package cats.tagless.laws
 import cats.tagless.FunctionKLift
 import cats.laws.*
 import cats.tagless.aop.{Aspect, Instrumentation}
-import cats.~>
 
 trait AspectLaws[F[_[_]], Dom[_], Cod[_]] extends InstrumentLaws[F] {
   implicit def F: Aspect[F, Dom, Cod]

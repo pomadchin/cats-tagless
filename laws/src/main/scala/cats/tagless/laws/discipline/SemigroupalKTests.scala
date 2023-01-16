@@ -18,7 +18,7 @@ package cats.tagless
 package laws
 package discipline
 
-import cats.{Eq, ~>}
+import cats.Eq
 import cats.data.Tuple2K
 import cats.tagless.laws.discipline.SemigroupalKTests.IsomorphismsK
 import org.scalacheck.Prop.*

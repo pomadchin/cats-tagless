@@ -19,7 +19,6 @@ package cats.tagless.laws
 import cats.tagless.FunctionKLift
 import cats.laws.*
 import cats.tagless.aop.{Instrument, Instrumentation}
-import cats.~>
 
 trait InstrumentLaws[F[_[_]]] extends FunctorKLaws[F] {
   implicit def F: Instrument[F]
