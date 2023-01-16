@@ -34,25 +34,22 @@ object Utils:
   ): (quotes.reflect.Symbol, List[List[quotes.reflect.Tree]]) => quotes.reflect.Term =
     (method, argss) =>
       import quotes.reflect.*
-      // method with no parentheses
-      if argss.isEmpty then Select(e.asTerm, method)
-      else
-        // collect all terms
-        // empty args are allowable, carefully don't skip empty lists
-        val terms =
-          argss.map { list =>
-            if list.nonEmpty then (list.collect { case t: Term => t }, true) else (Nil, false)
-          }.collect { case (list, skippable) if skippable && list.nonEmpty || !skippable => list }
+      // collect all terms
+      // empty args are allowable, carefully don't skip empty lists
+      val terms =
+        argss.map { list =>
+          if list.nonEmpty then (list.collect { case t: Term => t }, true) else (Nil, false)
+        }.collect { case (list, skippable) if skippable && list.nonEmpty || !skippable => list }
 
-        // collect all targs
-        val targs = argss.map(_.collect { case t: TypeTree => t }).filter(_.nonEmpty)
+      // collect all targs
+      val targs = argss.map(_.collect { case t: TypeTree => t }).filter(_.nonEmpty)
 
-        // construct type args first
-        val methodT = targs.foldLeft(Select(e.asTerm, method): Term)((acc, args) => TypeApply(acc, args))
-        // construct arguments next
-        val methodC = terms.foldLeft(methodT)((acc, args) => Apply(acc, args))
+      // construct type args first
+      val methodT = targs.foldLeft(Select(e.asTerm, method): Term)((acc, args) => TypeApply(acc, args))
+      // construct arguments next
+      val methodC = terms.foldLeft(methodT)((acc, args) => Apply(acc, args))
 
-        methodC
+      methodC
 
   def memberSymbolsAsSeen[Alg[_[_]]: Type, F[_]: Type](using
       Quotes
