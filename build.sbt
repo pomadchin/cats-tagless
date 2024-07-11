@@ -43,14 +43,14 @@ ThisBuild / githubWorkflowAddedJobs ++= Seq(
   )
 )
 
-val catsVersion = "2.11.0"
-val circeVersion = "0.14.8"
-val disciplineVersion = "1.6.0"
-val disciplineMunitVersion = "2.0.0-M3"
+val catsVersion = "2.12.0"
+val circeVersion = "0.14.9"
+val disciplineVersion = "1.7.0"
+val disciplineMunitVersion = "2.0.0"
 val fs2Version = "3.10.2"
 val kindProjectorVersion = "0.13.3"
 val paradiseVersion = "2.1.1"
-val scalaCheckVersion = "1.17.1"
+val scalaCheckVersion = "1.18.0"
 
 lazy val root = tlCrossRootProject.aggregate(core, fs2, laws, tests, macros, examples)
 

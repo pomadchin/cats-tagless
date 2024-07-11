@@ -22,6 +22,7 @@ import cats.laws.discipline.arbitrary.*
 import cats.tagless.laws.discipline.InvariantKTests
 import cats.tagless.syntax.all.*
 import cats.~>
+import cats.arrow.FunctionK
 
 import scala.annotation.experimental
 import scala.util.Try
@@ -124,8 +125,8 @@ class autoInvariantKTests extends CatsTaglessTestSuite:
 
 @experimental
 object autoInvariantKTests:
-  implicit val toFk: Try ~> Option = FunctionKLift[Try, Option](_.toOption)
-  implicit val otFk: Option ~> Try = FunctionKLift[Option, Try](o => Try(o.get))
+  implicit val toFk: Try ~> Option = FunctionK.liftFunction[Try, Option](_.toOption)
+  implicit val otFk: Option ~> Try = FunctionK.liftFunction[Option, Try](o => Try(o.get))
 
   trait NoEffectMethod[F[_]] derives InvariantK:
     def a(i: Int): Int
